@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 # define total_friends 150 // You can change this value to as much as you can to add as many friends as you want. for now, you can add 150.
 
+int fileHasContents = 0; // this is to check if the file has contents or not. acts as a boolean variable.
 
 // this function is used to print the menu to ask the user for the input.
 
@@ -14,13 +14,35 @@ void print_menu(){
   printf("3. Exit.\n");
 }
 
+
+void write_to_file(char array[total_friends][3][256], int i){
+	FILE *fp = fopen("friends.txt","a+");
+	int temp = 0;
+	if(fp == NULL){printf("Error in reading/writing file..\n"); return;}
+	if(!fileHasContents){
+		fputs("Name\t\tPhone.No\t\tEmail\n",fp);
+		fputs("----------------------------------------------------\n",fp);
+	}
+	while(temp != i){
+			fputs(array[temp][0],fp);
+			fputs("\t\t",fp);
+			fputs(array[temp][1],fp);
+			fputs("\t\t",fp);
+			fputs(array[temp][2],fp);
+			fputs("\n",fp);
+			temp += 1;
+		}
+	
+	printf("Contacts have been succesfully added in the file friends.txt. Thank you! :)");
+}
+
 // This function is used to show the *current* saved contacts in this *current* execution only.
 // after you close the program, the contents will be saved to a file and a new list will be created.
 
 void show (char array[total_friends][3][256], int i){
-	int temp = 0;
-	printf("\n ----- Contact info ----- \n");
-	FILE *fp = fopen("friends.txt","r");
+	printf("\n -------------------- Contact info -------------------- \n");
+	int temp = 0, inc=0;
+	FILE *fp = fopen("friends.txt","a+");
 	char c;
 	if(fp == NULL) goto other;
 	do{
@@ -28,18 +50,22 @@ void show (char array[total_friends][3][256], int i){
 		if(feof(fp)){
 			break;
 		}
+		inc++;
+		if(inc) fileHasContents = 1;
 		printf("%c",c);
 	}while(1);
-	
 	other:
-		printf("\nNAME \t\tPhone No. \tEMAIL\n");
+		if(!fileHasContents){
+			printf("\nName\t\tPhone.No\t\tEmail\n");
+			printf("------------------------------------------------\n");
+		}
 		while(temp != i){
 			printf("%s\t\t",array[temp][0]);
-			printf("%s\t",array[temp][1]);
+			printf("%s\t\t",array[temp][1]);
 			printf("%s\n",array[temp][2]);
 			temp += 1;
 		}
-		printf("\n");
+	printf("\n");
 }
 
 // This function is used to add friends to the array.
@@ -62,16 +88,7 @@ void add_friend(char array[total_friends][3][256], int i){
 
 
 int main(){
-	// You can clearly ignore these, from line 53 to 59 as these are used to get the current date and time of execution to write to file later.
-	time_t rawtime;
-	struct tm * timeinfo;
-
-	time (&rawtime);
-	timeinfo = localtime (&rawtime);
-    char time_and_date[50] = "Saved contacts on : ";
-    strcat(time_and_date,asctime(timeinfo));
-    
-    
+  
     int choice = 0,friends = 0;
     char array[total_friends][3][256];
 
@@ -96,27 +113,9 @@ int main(){
 			choice = 3;
 		}
     }
-    if(friends == 0) exit(0);
+    if(friends == 0) return 0;
     
-    // storing your friends in a file.
-    FILE *fp;
-    fp = fopen("friends.txt","a");
-    int i;
-    if(fp == NULL){
-		printf("Error in creating/reading file!!");
-		return -1;
-	}
-	fputs(time_and_date,fp); // this is to write to the file of the contents at line 59 of variable time_and_date.
-	fputs("\nName\t\tPhone.No\t\tEmail\n",fp);
-	fputs("------------------------------------------------\n",fp);
-    for(i = 0; i < friends; i++){
-		fputs(array[i][0],fp);
-		fputs("\t\t",fp);
-		fputs(array[i][1],fp);
-		fputs("\t\t",fp);
-		fputs(array[i][2],fp);
-		fputs("\n",fp);
-	}
+    write_to_file(array,friends);
 	
 	
   return 0;
