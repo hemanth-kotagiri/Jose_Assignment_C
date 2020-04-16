@@ -82,6 +82,7 @@ int main(){
         scanf("%d",&choice);                        
         if(choice == 1){
         	add_friend(array,friends);
+        	friends += 1;
 		}
 		
 		else if(choice == 2){
@@ -94,7 +95,6 @@ int main(){
 			printf("Please change the macro - total_friends to large value to store more friends");
 			choice = 3;
 		}
-		friends += 1;
     }
     if(friends == 0) exit(0);
     
